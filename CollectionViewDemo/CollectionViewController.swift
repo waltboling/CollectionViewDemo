@@ -13,6 +13,8 @@ class CollectionViewController: UICollectionViewController {
     var plantDataItems = [DataItem]()
     var animalDataItems = [DataItem]()
     var allItems = [[DataItem]]()
+    var cutCopyItem: DataItem?
+    
    
     @IBAction func addButtonTapped(_ sender: Any) {
     let item = DataItem(title: "New Item", kind: .Animal, imageName: "default.jpeg")
@@ -25,7 +27,17 @@ class CollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.collectionView?.allowsMultipleSelection = true
+        self.collectionView?.allowsSelection = true
+        
+        
+        
         navigationItem.leftBarButtonItem = editButtonItem
+        
+        //added trying to get delete button - wasn't working
+        /*UIMenuController.shared.menuItems = [UIMenuItem.init(title: "Delete", action: #selector(UIResponderStandardEditActions.delete(_:)))]
+        
+        UIMenuController.shared.setMenuVisible(true, animated: true)*/
         
         let width = collectionView!.frame.width / 3
         let layout = collectionViewLayout as! UICollectionViewFlowLayout
@@ -55,11 +67,16 @@ class CollectionViewController: UICollectionViewController {
         allItems.append(plantDataItems)
         allItems.append(animalDataItems)
     }
+    
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    //Data Source Methods
+    
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return allItems.count
@@ -87,58 +104,71 @@ class CollectionViewController: UICollectionViewController {
         
         return sectionHeader
     }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
+    
+    //trying here to move some cells around; seems like nothing below is getting called.
+    // stopped here to try some other things in a new file.
+    override func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+            return true
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        
+        let itemToMove = allItems[sourceIndexPath.section][sourceIndexPath.row]
+        
+        allItems[sourceIndexPath.section].remove(at: sourceIndexPath.row)
+        
+            if sourceIndexPath.section == destinationIndexPath.section {
+                allItems[sourceIndexPath.section].insert(itemToMove, at: destinationIndexPath.row)
+            } else {
+                allItems[destinationIndexPath.section].insert(itemToMove, at: destinationIndexPath.row)
+            }
+        }
+    
+
+ 
  
     // MARK: UICollectionViewDelegate
 
-    /*
+ 
     // Uncomment this method to specify if the specified item should be highlighted during tracking
     override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
         return true
     }
-    */
 
-    /*
+
     // Uncomment this method to specify if the specified item should be selected
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         return true
     }
-    */
 
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
+
     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
+        return true
     }
 
     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
+        return true
     }
 
     override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
+        if action.description == "copy:"{
+            cutCopyItem = allItems[indexPath.section][indexPath.row]
+        }
+        else if action.description == "cut:"{
+            cutCopyItem = allItems[indexPath.section][indexPath.row]
+            allItems[indexPath.section].remove(at: indexPath.row)
+            collectionView.reloadData()
+        }
+        else if action.description == "paste:"{
+            if (cutCopyItem != nil)
+            {
+                allItems[indexPath.section].insert(cutCopyItem!, at: indexPath.row)
+                collectionView.reloadData()
+            }
+        }
+        else if action.description == "delete:"{
+            allItems[indexPath.section].remove(at: indexPath.row)
+            collectionView.reloadData()
+        }
     }
-    */
- */
+}

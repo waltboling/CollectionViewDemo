@@ -14,7 +14,7 @@ class DataItem {
     var kind: Kind
     var imageName: String
     
-    init(title: String, kind:Kind, imageName: String) {
+    init(title: String, kind: Kind, imageName: String) {
         self.title = title
         self.kind = kind
         self.imageName = imageName
